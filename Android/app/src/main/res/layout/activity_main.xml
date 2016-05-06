@@ -1,42 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
     tools:context="genn.playqt.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/btn_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:orientation="horizontal">
         <Button
             android:id="@+id/detect_qr_btn"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:text="识别条码"/>
         <Button
             android:id="@+id/take_photo_btn"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:text="拍照"/>
         <Button
             android:id="@+id/choose_photo_btn"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:text="选择照片"/>
 
-    </LinearLayout>
-    <ImageView
-        android:id="@+id/show_photo_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/btn_layout"/>
-</RelativeLayout>
+</LinearLayout>
