@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>注册账号</title>
+</head>
+<body>
+<form method="post" action="{{ url_for('register') }}">
+    {{ form.hidden_tag() }}
+    <table>
+        <caption >注册账号</caption>
+        <tbody>
+            <tr>
+                <th align="right">用户名:</th><td>{{ form.username(size=20) }}</td>
+            </tr>
+            <tr>
+                <th align="right">密  码:</th><td>{{ form.password(size=20) }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">{{ form.submit() }}</td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>
