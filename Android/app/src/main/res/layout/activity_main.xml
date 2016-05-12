@@ -7,6 +7,11 @@
     android:orientation="vertical"
     android:gravity="center"
     tools:context="genn.playqt.MainActivity">
+        <Button
+            android:id="@+id/login_btn"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:text="登陆"/>
 
         <Button
             android:id="@+id/detect_qr_btn"
@@ -23,5 +28,10 @@
             android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:text="选择照片"/>
+        <Button
+            android:id="@+id/test_btn"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:text="测试页面"/>
 
 </LinearLayout>

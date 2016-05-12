@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post" action="{{ url_for('tasks') }}" enctype="multipart/form-data">
+    <table>
+        <caption >上传数据</caption>
+        <tbody>
+            <tr>
+                <th align="right">选择图片:</th><td>{{ form.image_data() }}</td>
+            </tr>
+            <tr>
+                <th align="right">图片信息:</th><td>{{ form.decode_data(size=20) }}</td>
+            </tr>
+            <tr>
+                <th align="right">拍照时间:</th><td>{{ form.take_time(size=20) }}</td>
+            </tr>
+            <tr>
+                <th align="right">拍照地点:</th><td>{{ form.position(size=20) }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input name="submit" type="submit" value="提交数据"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>

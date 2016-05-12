@@ -9,16 +9,18 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import genn.playqt.Utils.UserObject;
+
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<PhotoInfo> mData;
+    private List<UserObject.ImageInfo> mData;
 
     private OnRecycleItemClickListener recycleItemClickListener;
     public interface OnRecycleItemClickListener {
         void onItemClick(View view, int position);
     }
 
-    public RecyclerAdapter(List<PhotoInfo> mData) {
+    public RecyclerAdapter(List<UserObject.ImageInfo> mData) {
         this.mData = mData;
     }
 

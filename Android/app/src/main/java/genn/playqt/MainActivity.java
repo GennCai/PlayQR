@@ -10,15 +10,24 @@ import com.zijunlin.Zxing.Demo.CaptureActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button takePhoto, choosePhoto, detectQR;
+    private Button takePhoto, choosePhoto, detectQR, login, testPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        login = (Button) findViewById(R.id.login_btn);
         takePhoto = (Button) findViewById(R.id.take_photo_btn);
         choosePhoto = (Button) findViewById(R.id.choose_photo_btn);
         detectQR = (Button) findViewById(R.id.detect_qr_btn);
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
         takePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        testPage = (Button) findViewById(R.id.test_btn);
+        testPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

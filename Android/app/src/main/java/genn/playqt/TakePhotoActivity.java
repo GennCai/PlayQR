@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
@@ -19,8 +18,8 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
-import genn.playqt.Utilities.BaseActivity;
-import genn.playqt.Utilities.FileUtilities;
+import genn.playqt.Utils.BaseActivity;
+import genn.playqt.Utils.FileUtils;
 
 public class TakePhotoActivity extends BaseActivity {
     public static final int TAKE_PHOTO = 1;
@@ -78,11 +77,11 @@ public class TakePhotoActivity extends BaseActivity {
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bitmap, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 
-                        if (!FileUtilities.saveBitmapToFile(thumbnail, thumbFilePath)) {
+                        if (!FileUtils.saveBitmapToFile(thumbnail, thumbFilePath)) {
                             Toast.makeText(this, "保存thumbnail失败!", Toast.LENGTH_LONG).show();
                         }
-                        //     degree = FileUtilities.readPictureDegree(thumbFilePath);
-                        dBitmap = FileUtilities.rotateBitmap(bitmap, 90);
+                        //     degree = FileUtils.readPictureDegree(thumbFilePath);
+                        dBitmap = FileUtils.rotateBitmap(bitmap, 90);
                         showPhoto.setImageBitmap(dBitmap);
 
                     } catch (FileNotFoundException e) {
@@ -109,7 +108,7 @@ public class TakePhotoActivity extends BaseActivity {
 
             appDirectoryPath = Environment.getExternalStorageDirectory().getPath() + "/PlayQt";
             thumbDirectoryPath = appDirectoryPath + "/thumbnail";
-            FileUtilities.initAppDir(appDirectoryPath, thumbDirectoryPath);
+            FileUtils.initAppDir(appDirectoryPath, thumbDirectoryPath);
 
             String fileTime = formatter.format(new Date(System.currentTimeMillis()));
 
