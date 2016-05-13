@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:gravity="center_vertical"
-              android:padding="6dp"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/file_icon_item"
-        android:layout_width="90dp"
-        android:layout_height="90dp"/>
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:id="@+id/cv_item"
+    card_view:cardCornerRadius="4dp">
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/file_name_item"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:textSize="20sp"
-        android:text="FileName"/>
+            <ImageView
+                android:id="@+id/file_icon_item"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:contentDescription="Image icon"/>
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/file_name_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"/>
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

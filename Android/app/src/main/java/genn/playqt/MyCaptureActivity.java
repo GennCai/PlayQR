@@ -1,4 +1,4 @@
-package com.zijunlin.Zxing.Demo;
+package genn.playqt;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,25 +11,33 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.zijunlin.Zxing.Demo.CaptureActivity;
 import com.zijunlin.Zxing.Demo.camera.CameraManager;
 import com.zijunlin.Zxing.Demo.decoding.CaptureActivityHandler;
 import com.zijunlin.Zxing.Demo.decoding.InactivityTimer;
 import com.zijunlin.Zxing.Demo.view.ViewfinderView;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.Vector;
 
-public class CaptureActivity extends Activity implements Callback
+import genn.playqt.Utils.FileUtils;
+
+public class MyCaptureActivity extends CaptureActivity implements Callback
 {
 
 	private CaptureActivityHandler handler;
@@ -48,10 +56,10 @@ public class CaptureActivity extends Activity implements Callback
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(com.zijunlin.Zxing.Demo.R.layout.main);
 		// 初始化 CameraManager
 		CameraManager.init(getApplication());
-		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+		viewfinderView = (ViewfinderView) findViewById(com.zijunlin.Zxing.Demo.R.id.viewfinder_view);
 		hasSurface = false;
 		inactivityTimer = new InactivityTimer(this);
 	}
@@ -60,7 +68,7 @@ public class CaptureActivity extends Activity implements Callback
 	protected void onResume()
 	{
 		super.onResume();
-		SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+		SurfaceView surfaceView = (SurfaceView) findViewById(com.zijunlin.Zxing.Demo.R.id.preview_view);
 		SurfaceHolder surfaceHolder = surfaceView.getHolder();
 		if (hasSurface)
 		{
@@ -119,7 +127,7 @@ public class CaptureActivity extends Activity implements Callback
 		}
 		if (handler == null)
 		{
-			handler = new CaptureActivityHandler(this, decodeFormats, characterSet);
+			handler = new CaptureActivityHandler(MyCaptureActivity.this, decodeFormats, characterSet);
 		}
 	}
 
@@ -163,7 +171,8 @@ public class CaptureActivity extends Activity implements Callback
 
 	}
 
-	public void handleDecode(final Result obj, Bitmap barcode)
+	@Override
+	public void handleDecode(final Result obj, final Bitmap barcode)
 	{
 		inactivityTimer.onActivity();
 		playBeepSoundAndVibrate();
@@ -194,6 +203,35 @@ public class CaptureActivity extends Activity implements Callback
 				finish();
 			}
 		});
+		dialog.setNeutralButton("保存", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+					String appDirectoryPath = Environment.getExternalStorageDirectory().getPath() + "/PlayQt";
+					String thumbDirectoryPath = appDirectoryPath + "/thumbnail";
+					FileUtils.initAppDir(appDirectoryPath, thumbDirectoryPath);
+
+					String fileTime = FileUtils.formatter.format(new Date(System.currentTimeMillis()));
+					String filePath = appDirectoryPath + "/" + fileTime + ".jpg";
+					FileUtils.saveBitmapToFile(barcode, filePath, 100);
+
+					Bitmap thumbnail = ThumbnailUtils.extractThumbnail(barcode,
+							TakePhotoActivity.THUMBNAIL_WIDTH, TakePhotoActivity.THUMBNAIL_HEIGHT);
+					String thumbnailPath = thumbDirectoryPath + "/" + fileTime + ".jpg";
+					FileUtils.saveBitmapToFile(thumbnail, thumbnailPath, 30);
+
+
+				} else {
+					Toast.makeText(MyCaptureActivity.this, "请插入存储卡", Toast.LENGTH_LONG).show();
+				}
+
+
+				Toast.makeText(MyCaptureActivity.this, "保存图片中...", Toast.LENGTH_LONG).show();
+				finish();
+			}
+		});
+
 		dialog.setPositiveButton("取消", new DialogInterface.OnClickListener()
 		{
 			@Override
@@ -217,7 +255,7 @@ public class CaptureActivity extends Activity implements Callback
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.setOnCompletionListener(beepListener);
 
-			AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
+			AssetFileDescriptor file = getResources().openRawResourceFd(com.zijunlin.Zxing.Demo.R.raw.beep);
 			try
 			{
 				mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());

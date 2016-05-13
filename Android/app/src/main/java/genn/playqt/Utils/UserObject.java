@@ -28,32 +28,4 @@ public class UserObject {
         return username;
     }
 
-    public static class ImageInfo {
-
-        private Bitmap fileIcon;
-        private String fileName;
-
-        public ImageInfo(){}
-
-        public ImageInfo(Bitmap fileThumb, String fileName) {
-            this.fileName = fileName;
-            this.fileIcon =fileThumb;
-        }
-
-        public Bitmap getFileIcon() {
-            return fileIcon;
-        }
-
-        public void setFileIcon(Bitmap fileIcon) {
-            this.fileIcon = fileIcon;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
-        }
-    }
 }

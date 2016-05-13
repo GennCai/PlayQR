@@ -2,6 +2,12 @@
 <manifest package="genn.playqt"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT"/>
+
+
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -38,6 +44,12 @@
             android:label="@string/title_activity_login">
         </activity>
         <activity android:name=".TestActivity">
+        </activity>
+
+        <activity android:name=".MyCaptureActivity"
+                  android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                  android:windowSoftInputMode="stateAlwaysHidden">
         </activity>
     </application>
 

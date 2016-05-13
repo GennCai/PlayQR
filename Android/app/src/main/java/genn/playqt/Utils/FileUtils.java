@@ -11,12 +11,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 public class FileUtils {
     public static final String TAG = "PlayQR";
     public static String appDirPath, thumbDirPath;
     public static File appDir, thumbDir;
     public static int initCount = 0;
+
+    public static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
 
     public static void initAppDir(String appDirectoryPath, String thumbDirectoryPath){
         appDirPath = appDirectoryPath;
@@ -26,13 +29,13 @@ public class FileUtils {
         initCount++;
     }
 
-    public static boolean saveBitmapToFile(Bitmap bitmap, String targetFile) {
+    public static boolean saveBitmapToFile(Bitmap bitmap, String targetFile, int quality) {
         FileOutputStream outputFile;
         boolean flag = false;
         try {
 
             outputFile = new FileOutputStream(targetFile);
-            flag = bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputFile);
+            flag = bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputFile);
             outputFile.flush();
             outputFile.close();
             return flag;
@@ -95,5 +98,6 @@ public class FileUtils {
             return directory;
         }
         return directory;
+
     }
 }

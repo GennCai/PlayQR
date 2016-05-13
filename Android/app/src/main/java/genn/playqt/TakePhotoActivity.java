@@ -38,7 +38,7 @@ public class TakePhotoActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.show_photo);
+        setContentView(R.layout.activity_show_photo);
 
         showPhoto = (ImageView) findViewById(R.id.show_photo_image);
         neededPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -77,7 +77,7 @@ public class TakePhotoActivity extends BaseActivity {
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bitmap, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 
-                        if (!FileUtils.saveBitmapToFile(thumbnail, thumbFilePath)) {
+                        if (!FileUtils.saveBitmapToFile(thumbnail, thumbFilePath, 20)) {
                             Toast.makeText(this, "保存thumbnail失败!", Toast.LENGTH_LONG).show();
                         }
                         //     degree = FileUtils.readPictureDegree(thumbFilePath);
@@ -101,7 +101,6 @@ public class TakePhotoActivity extends BaseActivity {
     }
 
 
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
     private void takePhoto() {
 
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -110,7 +109,7 @@ public class TakePhotoActivity extends BaseActivity {
             thumbDirectoryPath = appDirectoryPath + "/thumbnail";
             FileUtils.initAppDir(appDirectoryPath, thumbDirectoryPath);
 
-            String fileTime = formatter.format(new Date(System.currentTimeMillis()));
+            String fileTime = FileUtils.formatter.format(new Date(System.currentTimeMillis()));
 
             imageFilePath = appDirectoryPath + "/" + fileTime + ".jpg";
             thumbFilePath = thumbDirectoryPath + "/" + fileTime + ".jpg";

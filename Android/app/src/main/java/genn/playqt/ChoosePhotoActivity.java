@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import genn.playqt.Utils.FileUtils;
+import genn.playqt.Utils.ImageObject;
 import genn.playqt.Utils.UserObject;
 import genn.playqt.Utils.BaseActivity;
 
@@ -30,7 +31,7 @@ public class ChoosePhotoActivity extends BaseActivity {
     private RecyclerAdapter recyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private List<UserObject.ImageInfo> mData = new ArrayList<>();
+    private List<ImageObject> mData = new ArrayList<>();
 
     private String[] neededPermissions;
     private int permissionCode = 3;
@@ -39,11 +40,22 @@ public class ChoosePhotoActivity extends BaseActivity {
     private TextView recycleTitle;
     private LinearLayout container;
 
+    private View showPhotoView;
+    private ImageView showPhoto;
+    private Bitmap showBitmap;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.choose_photo);
+        setContentView(R.layout.activity_choose_photo);
         recycleTitle = (TextView) findViewById(R.id.recycle_title_view);
+
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
         container = (LinearLayout) findViewById(R.id.show_recycle_container);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -51,9 +63,10 @@ public class ChoosePhotoActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        showPhotoView = LayoutInflater.from(ChoosePhotoActivity.this).inflate(R.layout.activity_show_photo, null);
+        showPhoto = (ImageView)showPhotoView.findViewById(R.id.show_photo_image);
         neededPermissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         requestPermission(this,neededPermissions, permissionCode );
-
     }
 
     Pattern pattern = Pattern.compile("\\w+\\\\.(jpg|gif|bmp|png)");
@@ -73,7 +86,7 @@ public class ChoosePhotoActivity extends BaseActivity {
                 String tmpFileName = currentFiles[i].getName();
                 if (tmpFileName.endsWith(".jpg")) {
 
-                    UserObject.ImageInfo photoInfo = new UserObject.ImageInfo();
+                    ImageObject newImage = new ImageObject();
                     File tmpFile = new File(FileUtils.thumbDirPath + "/" + tmpFileName);
                     Bitmap bitmap;
                     if (tmpFile.exists()) {
@@ -82,10 +95,10 @@ public class ChoosePhotoActivity extends BaseActivity {
                         tmpFile = new File(FileUtils.appDirPath + "/", tmpFileName);
                         bitmap = FileUtils.readFileToBitmap(tmpFile, 30);
                     }
-                    photoInfo.setFileIcon(bitmap);
-                    photoInfo.setFileName(tmpFileName);
+                    newImage.setFileIcon(bitmap);
+                    newImage.setFileName(tmpFileName);
 
-                    mData.add(photoInfo);
+                    mData.add(newImage);
                 }
 
             }
@@ -109,22 +122,17 @@ public class ChoosePhotoActivity extends BaseActivity {
             recyclerAdapter.setRecycleItemClickListener(new RecyclerAdapter.OnRecycleItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-
-                    TextView fileNameView = (TextView) findViewById(R.id.file_name_item);
+                    TextView fileNameView = (TextView) view.findViewById(R.id.file_name_item);
                     String fileName = fileNameView.getText().toString();
 
                     File showImageFile = new File(FileUtils.appDirPath + "/" + fileName);
-                    Bitmap bitmap = FileUtils.readFileToBitmap(showImageFile, 1);
-
-                    View showPhotoView = LayoutInflater.from(ChoosePhotoActivity.this).inflate(R.layout.show_photo, null);
-                    ImageView showPhoto = (ImageView)showPhotoView.findViewById(R.id.show_photo_image);
-
-
-                    showPhoto.setImageBitmap(bitmap);
+                    showBitmap = FileUtils.readFileToBitmap(showImageFile, 1);
+                    showPhoto.setImageBitmap(showBitmap);
 
                     dialog.setTitle(fileName);
                     dialog.setView(showPhotoView);
                     dialog.show();
+             //       showBitmap.recycle();
 
                     //未完待续....
                 }

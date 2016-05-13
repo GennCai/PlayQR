@@ -81,7 +81,7 @@ public  class HttpUtil {
         return 400;
     }
 
-    public int uploadImage(String url, UserObject authObject, File imageFile, UserObject.ImageInfo imageInfo) {
+    public int uploadImage(String url, UserObject authObject, File imageFile, ImageObject imageObject) {
         return 0;
     }
 
@@ -93,11 +93,11 @@ public  class HttpUtil {
         return 0;
     }
 
-    public int updataImage(String url, UserObject userObject, UserObject.ImageInfo imageInfo) {
+    public int updataImage(String url, UserObject userObject, ImageObject imageObject) {
         return 0;
     }
 
-    public int deleteImage(String url, UserObject userObject, UserObject.ImageInfo imageInfo) {
+    public int deleteImage(String url, UserObject userObject, ImageObject imageObject) {
         return 0;
     }
 }
