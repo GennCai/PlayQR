@@ -67,7 +67,7 @@ class TasksAPI(Resource):
 
             args = parse.parse_args()
             decode_data = args.get('decode_data')
-            take_time = args.get('take_time')
+            take_time = args.get('take_time') # 2016-05-12 10:19:19
             take_time = datetime.strptime(take_time, '%Y-%m-%d %H:%M:%S')
             position = args.get('position')
 

@@ -8,7 +8,7 @@
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context="genn.playqt.LoginActivity">
+              tools:context=".activity.LoginActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -62,16 +62,28 @@
                     android:singleLine="true"/>
 
             </android.support.design.widget.TextInputLayout>
-
-            <Button
-                android:id="@+id/sign_in_button"
-                style="?android:textAppearanceSmall"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/action_sign_in"
-                android:textStyle="bold"/>
-
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/login_button"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    style="?android:textAppearanceSmall"
+                    android:text="登陆"
+                    android:textStyle="bold"/>
+                <Button
+                    android:id="@+id/register_button"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    style="?android:textAppearanceSmall"
+                    android:text="注册"
+                    android:textStyle="bold"/>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

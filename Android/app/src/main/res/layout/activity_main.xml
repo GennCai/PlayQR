@@ -1,37 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="6dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    tools:context="genn.playqt.MainActivity">
-        <Button
-            android:id="@+id/login_btn"
-            android:layout_width="160dp"
+    tools:context=".activity.MainActivity">
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="登陆"/>
+            android:orientation="horizontal"
+            android:layout_alignParentEnd="true">
+            <TextView
+                android:id="@+id/username_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="匿名用户"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:layout_marginLeft="2dp"
+                android:textSize="20dp"
+                android:text="/"/>
+            <TextView
+                android:id="@+id/login_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:text="登录"/>
 
-        <Button
-            android:id="@+id/detect_qr_btn"
-            android:layout_width="160dp"
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="识别条码"/>
-        <Button
-            android:id="@+id/take_photo_btn"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:text="拍照"/>
-        <Button
-            android:id="@+id/choose_photo_btn"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:text="选择照片"/>
-        <Button
-            android:id="@+id/test_btn"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:text="测试页面"/>
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            android:gravity="center">
+                <Button
+                    android:id="@+id/detect_qr_btn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="识别条码"/>
+                <Button
+                    android:id="@+id/take_photo_btn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="拍照"/>
+                <Button
+                    android:id="@+id/choose_photo_btn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="浏览照片"/>
+                <Button
+                    android:id="@+id/test_btn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="测试页面"/>
 
-</LinearLayout>
+        </LinearLayout>
+
+</RelativeLayout>

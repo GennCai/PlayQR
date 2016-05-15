@@ -75,7 +75,7 @@ def hello():
 def login():
     form = LoginForm()
     simple_auth = request.authorization
-    if simple_auth is not None:
+    if request.method == 'POST':
         try:
             username = simple_auth.username
             password = simple_auth.password
@@ -84,11 +84,11 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is not None:
             if password == user.password:
-                return jsonify({'message': 'login successfully'})
+                return jsonify({'message': 'login successfully'}), 200
             else:
                 return make_response(jsonify({'error': 'your password is incorrect'}), 402)
         else:
-            return make_response(jsonify({'error': 'you have not register'}), 403)
+            return make_response(jsonify({'error': 'this username is incorrect'}), 403)
     else:
         return render_template('login.html', form=form)
 
@@ -103,9 +103,9 @@ def register():
             user = User(username, password)
             db.session.add(user)
             db.session.commit()
-            return jsonify({'message': 'register successfully'})
+            return jsonify({'message': 'register successfully'}), 201
         else:
-            return make_response(jsonify({'error': 'this name has benn register'}), 404)
+            return make_response(jsonify({'error': 'this name has benn register'}), 405)
     return render_template('register.html', form=form)
 
 
