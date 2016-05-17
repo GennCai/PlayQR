@@ -1,5 +1,9 @@
 package genn.playqt.utils;
 
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +26,7 @@ public  class HttpUtil {
     private static OkHttpClient okHttpClient;
     public static final String URL_LOGIN = "http://192.168.1.110:5000/login";
     public static final String URL_REGISTER = "http://192.168.1.110:5000/register";
+    public static final String URL_DOWNLOAD = "http://192.168.1.110:5000/download/";
     public static final String URL_TASKS = "http://192.168.1.110:5000/playqr/api/v1.0/tasks";
     public static final String URL_TASK = "http://192.168.1.110:5000/playqr/api/v1.0/task/";
     public static final String TAG = "Auth Message";
@@ -54,6 +59,7 @@ public  class HttpUtil {
         }finally {
             try {
                 bufferedReader.close();
+                inputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -100,19 +106,39 @@ public  class HttpUtil {
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image_data", image.getName(), fileBody)
                 .addFormDataPart("decode_data", image.getDecodeData())
-                .addFormDataPart("take_time", image.getTakeTime())
-                .addFormDataPart("position", image.getPosition())
+                .addFormDataPart("time", image.getTakeTime())
+                .addFormDataPart("location", image.getLocation())
                 .build();
         if (authRequestBuilder != null) {
             Request request = authRequestBuilder.url(url).post(requestBody).build();
             okHttpClient.newCall(request).enqueue(callback);
             return 1;
+        }
+        return 0;
+
+    }
+
+    public Bitmap downloadImage(String url, String fileName) throws IOException {
+        okHttpClient = getClient();
+        if (authRequestBuilder != null) {
+            Request request = authRequestBuilder.url(url + fileName).build();
+            Response response = okHttpClient.newCall(request).execute();
+            InputStream is = response.body().byteStream();
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            is.close();
+            return bitmap;
         } else {
-            return 0;
+            return null;
         }
     }
 
-    public int getImages(String url, User user) {
+    public int getImages(String url, Callback callback) {
+        okHttpClient = getClient();
+        if (authRequestBuilder != null) {
+            Request request = authRequestBuilder.url(url).build();
+            okHttpClient.newCall(request).enqueue(callback);
+            return 1;
+        }
         return 0;
     }
 

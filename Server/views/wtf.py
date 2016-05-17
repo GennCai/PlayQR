@@ -19,6 +19,6 @@ class LoginForm(Form):
 class TakesPostForm(Form):
     image_data = FileField('image_data', validators=[DataRequired()])
     decode_data = StringField(validators=[DataRequired()])
-    take_time = StringField()
-    position = StringField()
+    time = StringField()
+    location = StringField()
 

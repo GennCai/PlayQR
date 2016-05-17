@@ -375,10 +375,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         private void succeedExecute() {
-            User.setInstance(mUsername, true);
-            Intent intent = new Intent();
+            User.setInstance(mUsername, mPassword, true);
+            /*Intent intent = new Intent();
             intent.putExtra("username", mUsername);
-            setResult(RESULT_OK, intent);
+            setResult(RESULT_OK, intent);*/
         }
 
         @Override

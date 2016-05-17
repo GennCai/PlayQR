@@ -2,8 +2,10 @@ package genn.playqt.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,10 +14,12 @@ import android.widget.Toast;
 import genn.playqt.R;
 import genn.playqt.database.User;
 import genn.playqt.utils.FileUtils;
+import genn.playqt.utils.HttpUtil;
+import okhttp3.Request;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements View.OnClickListener{
 
-    private Button takePhoto, choosePhoto, detectQR, testPage;
+    private Button takePhoto, chooseLocImg,chooseNetImg, detectQR, testPage;
     private TextView loginText, usernameText;
 
     private static final int REQUEST_LOGIN_CODE = 0;
@@ -24,13 +28,17 @@ public class MainActivity extends BaseActivity {
     public final int permissionCode4TakePhone = 1;
     public final int permissionCode4Location = 2;
 
-    @Override
+    private SharedPreferences mPreferences;
+    private SharedPreferences.Editor mEditor;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         takePhoto = (Button) findViewById(R.id.take_photo_btn);
-        choosePhoto = (Button) findViewById(R.id.choose_photo_btn);
+        chooseLocImg = (Button) findViewById(R.id.choose_loc_img_btn);
+        chooseNetImg = (Button) findViewById(R.id.choose_net_img_btn);
         detectQR = (Button) findViewById(R.id.detect_qr_btn);
+        testPage = (Button) findViewById(R.id.test_btn);
 
         loginText = (TextView) findViewById(R.id.login_text);
         usernameText = (TextView) findViewById(R.id.username_text);
@@ -38,54 +46,68 @@ public class MainActivity extends BaseActivity {
         neededPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         requestPermission(this, neededPermissions, permissionCode4TakePhone);
 
-        loginText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        loginText.setOnClickListener(this);
+        takePhoto.setOnClickListener(this);
+        chooseLocImg.setOnClickListener(this);
+        chooseNetImg.setOnClickListener(this);
+        detectQR.setOnClickListener(this);
+        testPage.setOnClickListener(this);
+
+        mPreferences = getPreferences(MODE_PRIVATE);
+        if (mPreferences.getBoolean("isLogin", false)) {
+            String username = mPreferences.getString("username", "");
+            String password = mPreferences.getString("password", "");
+            HttpUtil.configAuthRequestBuilder(new Request.Builder(), username, password);
+            User.setInstance(username, password, true);
+        }
+        Log.d("MainActivity", "onCreate()");
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MainActivity", "onStart()");
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        Intent intent;
+        switch (v.getId()) {
+            case R.id.login_text:
                 if (User.getInstance().isLogin()) {
                     usernameText.setText("匿名用户");
                     loginText.setText("登陆");
                     User.getInstance().setLogin(false);
                 } else {
-
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivityForResult(intent, REQUEST_LOGIN_CODE);
+                    intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
                 }
-            }
-        });
-
-        takePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TakePhotoActivity.class);
+                break;
+            case R.id.detect_qr_btn:
+                intent = new Intent(MainActivity.this, MyCaptureActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        choosePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.take_photo_btn:
+                intent = new Intent(MainActivity.this, TakePhotoActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.choose_loc_img_btn:
                 /*Intent intent = new Intent("android.intent.action.GET_CONTENT");
                 intent.setType("image*//*");*/
-                Intent intent = new Intent(MainActivity.this, BrsImgActivity.class);
+                intent = new Intent(MainActivity.this, LocImgActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        detectQR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MyCaptureActivity.class);
+                break;
+            case R.id.choose_net_img_btn:
+                intent = new Intent(MainActivity.this, NetImgActivity.class);
                 startActivity(intent);
-            }
-        });
-        testPage = (Button) findViewById(R.id.test_btn);
-        testPage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                break;
+            case R.id.test_btn:
+                intent = new Intent(MainActivity.this, TestActivity.class);
                 startActivity(intent);
-            }
-        });
+                break;
+        }
     }
 
     @Override
@@ -101,6 +123,17 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        User user = User.getInstance();
+        if (user.isLogin()) {
+            usernameText.setText(user.getUsername());
+            loginText.setText("退出");
+        }
+        Log.d("MainActivity", "onResume()");
+    }
+
+    @Override
     public void explainYourWork() {
 
     }
@@ -110,7 +143,7 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -120,5 +153,38 @@ public class MainActivity extends BaseActivity {
                     loginText.setText("退出");
                 }
         }
+    }
+*/
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("MainActivity", "onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("MainActivity", "onStop()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        mEditor = mPreferences.edit();
+        User user = User.getInstance();
+        boolean isLogin = user.isLogin();
+        String username = user.getUsername();
+        String password = user.getPassword();
+        mEditor.putBoolean("isLogin", isLogin);
+        mEditor.putString("username", username);
+        mEditor.putString("password", password);
+        Log.d("MainActivity", "onDestroy()");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("MainActivity", "onRestart()");
     }
 }

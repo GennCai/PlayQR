@@ -50,10 +50,15 @@
                     android:layout_height="wrap_content"
                     android:text="拍照"/>
                 <Button
-                    android:id="@+id/choose_photo_btn"
+                    android:id="@+id/choose_loc_img_btn"
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"
-                    android:text="浏览照片"/>
+                    android:text="本地照片"/>
+                <Button
+                    android:id="@+id/choose_net_img_btn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="网络照片"/>
                 <Button
                     android:id="@+id/test_btn"
                     android:layout_width="160dp"

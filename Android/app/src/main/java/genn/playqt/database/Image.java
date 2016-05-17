@@ -1,6 +1,9 @@
 package genn.playqt.database;
 
 import android.graphics.Bitmap;
+
+import com.google.gson.annotations.SerializedName;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 
@@ -11,10 +14,13 @@ public class Image {
     private Bitmap icon;
 
     private File imageFile;
+    @SerializedName("image_name")
     private String name;
+    @SerializedName("decode_data")
     private String decodeData;
+    @SerializedName("time")
     private String takeTime;
-    private String position;
+    private String location;
 
     public Image(){}
 
@@ -47,12 +53,12 @@ public class Image {
         this.takeTime = takeTime;
     }
 
-    public String getPosition() {
-        return position;
+    public String getLocation() {
+        return location;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public Bitmap getIcon() {

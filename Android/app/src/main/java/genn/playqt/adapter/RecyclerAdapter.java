@@ -40,7 +40,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
         @Override
         public void onClick(View v) {
-        //    Log.d("------Adapter-------", ": " + getPosition() + getAdapterPosition() + getLayoutPosition());
+        //    Log.d("------Adapter-------", ": " + getLocation() + getAdapterPosition() + getLayoutPosition());
             if (recycleItemClickListener != null) {
                 int pos = getLayoutPosition();
                 recycleItemClickListener.onItemClick(v, getLayoutPosition());

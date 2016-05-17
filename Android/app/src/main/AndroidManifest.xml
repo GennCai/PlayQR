@@ -19,8 +19,10 @@
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -39,7 +41,7 @@
         </activity>
         <activity android:name=".activity.TakePhotoActivity">
         </activity>
-        <activity android:name=".activity.BrsImgActivity">
+        <activity android:name=".activity.LocImgActivity">
         </activity>
         <activity
             android:name=".activity.LoginActivity"
@@ -53,6 +55,19 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden">
+        </activity>
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote">
+        </service>
+
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="DTapQNVGS0OEEjE3XAsknp48ORQ0ac6R"/>
+        //key:开发者申请的key
+        <activity android:name=".activity.NetImgActivity">
         </activity>
     </application>
 

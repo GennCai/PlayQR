@@ -9,22 +9,32 @@ public class User {
 
     private static User sUser;
     private String username;
+    private String password;
     private boolean isLogin;
-    private User() {}
 
+    private User() {}
     public static User getInstance(){
       return sUser == null ? new User() : sUser;
     }
 
-    public static User setInstance(String username,  boolean isLogin) {
+    public static User setInstance(String username, String password, boolean isLogin) {
         sUser = getInstance();
         sUser.setUsername(username);
+        sUser.setPassword(password);
         sUser.setLogin(isLogin);
         return sUser;
     }
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean isLogin() {

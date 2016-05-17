@@ -1,9 +1,9 @@
-from flask import Flask, render_template, url_for, request, redirect, jsonify, make_response
+from flask import Flask, render_template, url_for, request, redirect, jsonify, make_response, send_from_directory
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.restful import Api
 from views.admin import admin
 from views.wtf import RegisterForm, LoginForm, TakesPostForm
-from views.restful import TasksAPI, TaskAPI
+from views.restful import TasksAPI, TaskAPI, auth
 from datetime import datetime
 import os
 
@@ -22,6 +22,7 @@ api.add_resource(TaskAPI, '/playqr/api/v1.0/task/<int:id>', endpoint='task')
 
 
 @app.route('/test')
+@auth.login_required
 def test():
     form = TakesPostForm()
     return render_template('takes_post.html', form=form)
@@ -30,19 +31,19 @@ def test():
 class Image(db.Model):
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    image_data = db.Column(db.String(240), index=True)
+    image_name = db.Column(db.String(240), index=True)
     decode_data = db.Column(db.String(240))
-    take_time = db.Column(db.DateTime)
-    position = db.Column(db.String(240))
+    time = db.Column(db.DateTime)
+    location = db.Column(db.String(240))
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('images', lazy='dynamic'))
 
-    def __init__(self, image_data, decode_data, take_time, position, user):
-        self.image_data = image_data
+    def __init__(self, image_name, decode_data, time, location, user):
+        self.image_name = image_name
         self.decode_data = decode_data
-        self.take_time = take_time
-        self.position = position
+        self.time = time
+        self.location = location
         self.user = user
 
     def __repr__(self):
@@ -60,7 +61,8 @@ class User(db.Model):
         self.username = username
         self.password = password
         self.upload_folder = os.path.abspath(os.path.join(app.config['UPLOAD_FOLDER'], username))
-        os.mkdir(self.upload_folder)
+        if not os.path.exists(self.upload_folder):
+            os.mkdir(self.upload_folder)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -107,6 +109,14 @@ def register():
         else:
             return make_response(jsonify({'error': 'this name has benn register'}), 405)
     return render_template('register.html', form=form)
+
+
+@app.route('/download/<filename>')
+@auth.login_required
+def download(filename):
+    user = User.query.filter_by(username=request.authorization.username).first()
+    directory = user.upload_folder
+    return send_from_directory(directory=directory, filename=filename)
 
 
 if __name__ == '__main__':
