@@ -1,3 +1,4 @@
+#coding:utf-8
 from flask import Flask, render_template, url_for, request, redirect, jsonify, make_response, send_from_directory
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.restful import Api
@@ -28,7 +29,7 @@ def test():
     return render_template('takes_post.html', form=form)
 
 
-class Image(db.Model):
+class Image(db.Model): #定义表images
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     image_name = db.Column(db.String(240), index=True)

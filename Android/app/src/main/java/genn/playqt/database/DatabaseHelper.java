@@ -1,15 +1,22 @@
 package genn.playqt.database;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper dbHelper;
     public static DatabaseHelper getInstance(Context context) {
-        return dbHelper == null ? new DatabaseHelper(context, "PlayQR", null, 2) : dbHelper;
+        if (dbHelper == null) {
+            dbHelper = new DatabaseHelper(context, "PlayQR", null, 2);
+        }
+        return dbHelper;
     }
     Context mContext;
     public static final String CREATE_USER = "create table users (" +
@@ -26,7 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //"drop table if exists users"
 
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
         mContext = context;
     }
@@ -45,5 +52,69 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             case 2:
             case 3:
         }
+    }
+
+    public int getUserId(SQLiteDatabase db,  String username) {
+        int id;
+        Cursor cursor = db.rawQuery("select id from users where username=?", new String[]{username});
+        id = cursor.moveToFirst() ? cursor.getInt(cursor.getColumnIndex("id")) : -1 ;
+        cursor.close();
+        return id;
+    }
+
+    public void insertImage(Image image) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("insert into images (path, data, time, location, is_uploaded, user_id) " +
+                "values(?, ?, ?, ? ,? ,?)", new Object[]{image.getName(), image.getDecodeData(), image.getTakeTime()
+        , image.getLocation(), false, User.getInstance().getId()});
+    }
+
+    public void updataImage(Image image) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("update images set path=?, data=?, time=?, location=?",
+                new String[]{image.getName(), image.getDecodeData(), image.getTakeTime(), image.getLocation()});
+    }
+
+    public void uploadImage(String imageName) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("update images set is_uploaded=1");
+    }
+    public Image queryImage(String fileName) {
+        Image image = null;
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from images where path=?", new String[]{fileName});
+        if (cursor.moveToFirst()) {
+            image = new Image();
+            image.setName(cursor.getString(cursor.getColumnIndex("path")));
+            image.setDecodeData(cursor.getString(cursor.getColumnIndex("data")));
+            image.setTakeTime(cursor.getString(cursor.getColumnIndex("time")));
+            image.setLocation(cursor.getString(cursor.getColumnIndex("location")));
+            image.setUploaded(cursor.getInt(cursor.getColumnIndex("is_uploaded"))==1);
+        }
+        cursor.close();
+        return image;
+    }
+
+    public List<Image> queryImages() {
+        List<Image> images = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from images where user_id=?", new String[]{User.getInstance().getId() + ""});
+        if (cursor.moveToFirst()) {
+            do {
+                Image image = new Image();
+                image.setName(cursor.getString(cursor.getColumnIndex("path")));
+                image.setDecodeData(cursor.getString(cursor.getColumnIndex("data")));
+                image.setTakeTime(cursor.getString(cursor.getColumnIndex("time")));
+                image.setLocation(cursor.getString(cursor.getColumnIndex("location")));
+                image.setUploaded(cursor.getInt(cursor.getColumnIndex("is_uploaded"))==1);
+                images.add(image);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return images;
+    }
+
+    public void deleteImage(String imageName) {
+        dbHelper.getWritableDatabase().execSQL("delete from images where path=?", new String[]{imageName});
     }
 }

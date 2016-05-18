@@ -1,14 +1,16 @@
 package genn.playqt.activity;
 
 import android.Manifest;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +20,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import genn.playqt.R;
+import genn.playqt.database.DatabaseHelper;
 import genn.playqt.database.User;
 import genn.playqt.utils.FileUtils;
 import genn.playqt.database.Image;
 import genn.playqt.adapter.RecyclerAdapter;
+import genn.playqt.utils.HttpUtil;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class LocImgActivity extends BaseActivity {
     private RecyclerView recyclerView;
@@ -52,12 +60,6 @@ public class LocImgActivity extends BaseActivity {
         // supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_loc_img);
         recycleTitle = (TextView) findViewById(R.id.recycle_title_view);
-
-
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
         container = (LinearLayout) findViewById(R.id.show_recycle_container);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -69,6 +71,11 @@ public class LocImgActivity extends BaseActivity {
         showPhoto = (ImageView)showPhotoView.findViewById(R.id.show_photo_image);
         neededPermissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         requestPermission(this,neededPermissions, permissionCode );
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     Pattern pattern = Pattern.compile("\\w+\\\\.(jpg|gif|bmp|png)");
@@ -118,26 +125,110 @@ public class LocImgActivity extends BaseActivity {
                 recyclerView.setVisibility(View.VISIBLE);
             }
 
-            final AlertDialog dialog = new AlertDialog.Builder(this).create();
-
-            recyclerAdapter.setRecycleItemClickListener(new RecyclerAdapter.OnRecycleItemClickListener() {
+            final AlertDialog.Builder clickDialogBuilder = new AlertDialog.Builder(LocImgActivity.this);
+            recyclerAdapter.setItemClickListener(new RecyclerAdapter.OnRecycleItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    TextView fileNameView = (TextView) view.findViewById(R.id.file_name_item);
-                    String fileName = fileNameView.getText().toString();
+
+                    TextView fileNameText = (TextView) view.findViewById(R.id.file_name_item);
+                    String fileName = fileNameText.getText().toString();
 
                     File showImageFile = new File(User.getAppDirectoryPath() + "/" + fileName);
                     showBitmap = FileUtils.readFileToBitmap(showImageFile, 1);
                     showPhoto.setImageBitmap(showBitmap);
 
-                    dialog.setTitle(fileName);
-                    dialog.setView(showPhotoView);
-                    dialog.show();
-             //       showBitmap.recycle();
-
-                    //未完待续....
+                    clickDialogBuilder.setTitle(fileName);
+                    clickDialogBuilder.setView(showPhotoView);
+                    clickDialogBuilder.create();
+                    clickDialogBuilder.show();
                 }
             });
+
+
+            recyclerAdapter.setItemLongClickListener(new RecyclerAdapter.OnRecycleItemLongClickListener() {
+                @Override
+                public void onItemLongClick(View view, final int position) {
+                    AlertDialog.Builder longClickBuilder = new AlertDialog.Builder(LocImgActivity.this);
+                    final TextView fileNameText = (TextView) view.findViewById(R.id.file_name_item);
+                    ImageView fileIconView = (ImageView) view.findViewById(R.id.file_icon_item);
+                    final String fileName = fileNameText.getText().toString();
+
+                    final Image image = DatabaseHelper
+                            .getInstance(LocImgActivity.this)
+                            .queryImage(fileName);
+                    longClickBuilder.setTitle(fileName);
+                    longClickBuilder.setIcon(fileIconView.getDrawable());
+
+                    if (image != null) {
+                        String[] items = new String[]{image.getDecodeData(), image.getTakeTime(), image.getLocation()};
+                        longClickBuilder.setItems(items, null);
+
+                        longClickBuilder.setNeutralButton("上传", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                File imageFile = new File(User.getAppDirectoryPath(), fileName);
+                                if (imageFile.exists()) {
+                                    image.setImageFile(imageFile);
+                                    HttpUtil.getInstance().uploadImage(HttpUtil.URL_TASKS, image, new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            Toast.makeText(LocImgActivity.this, "图片上传失败", Toast.LENGTH_LONG).show();
+                                        }
+
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            if (response.isSuccessful()) {
+                                                DatabaseHelper.getInstance(LocImgActivity.this).uploadImage(image.getName());
+                                                Looper.prepare();
+                                                Toast.makeText(LocImgActivity.this, "图片上传成功", Toast.LENGTH_LONG).show();
+                                                Looper.loop();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    } else longClickBuilder.setMessage("这张图片暂时没有信息");
+
+                    longClickBuilder.setNegativeButton("删除", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            File imageFile = new File(User.getAppDirectoryPath(), fileName);
+                            File thumbFile = new File(User.getThumbDirectoryPath(), fileName);
+                            if (imageFile.exists()) imageFile.delete();
+                            if (thumbFile.exists()) thumbFile.delete();
+                            if (image != null)
+                                DatabaseHelper.getInstance(LocImgActivity.this).deleteImage(image.getName());
+                            recyclerAdapter.notifyItemRemoved(position);
+                        }
+                    });
+                    longClickBuilder.setPositiveButton("编辑", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(LocImgActivity.this, EditImgActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("image", image);
+                            bundle.putString("imageName", fileName);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, 0);
+                        }
+                    });
+                    longClickBuilder.create();
+                    longClickBuilder.show();
+
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 0:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "数据提交成功", Toast.LENGTH_SHORT).show();
+                    recyclerAdapter.notifyDataSetChanged();
+                }
         }
     }
 

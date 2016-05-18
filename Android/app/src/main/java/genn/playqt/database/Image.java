@@ -5,9 +5,10 @@ import android.graphics.Bitmap;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
-public class Image {
+public class Image implements Serializable{
 
     public static SimpleDateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             //"yyyyMMdd_HHmmss"
@@ -22,6 +23,8 @@ public class Image {
     private String takeTime;
     private String location;
 
+    private boolean isUploaded;
+
     public Image(){}
 
     public Image(Bitmap thumbBitmap, String imageName) {
@@ -35,6 +38,14 @@ public class Image {
 
     public void setImageFile(File imageFile) {
         this.imageFile = imageFile;
+    }
+
+    public boolean isUploaded() {
+        return isUploaded;
+    }
+
+    public void setUploaded(boolean uploaded) {
+        isUploaded = uploaded;
     }
 
     public String getDecodeData() {

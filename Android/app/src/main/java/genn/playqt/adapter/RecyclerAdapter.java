@@ -15,20 +15,28 @@ import genn.playqt.database.Image;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private List<Image> mData;
-    private OnRecycleItemClickListener recycleItemClickListener;
+    private OnRecycleItemClickListener mItemClickListener;
+    private OnRecycleItemLongClickListener mItemLongClickListener;
     public interface OnRecycleItemClickListener {
         void onItemClick(View view, int position);
     }
 
+    public interface OnRecycleItemLongClickListener{
+        void onItemLongClick(View view, int position);
+    }
     public RecyclerAdapter(List<Image> mData) {
         this.mData = mData;
     }
 
-    public void setRecycleItemClickListener(OnRecycleItemClickListener itemClickListener) {
-        this.recycleItemClickListener = itemClickListener;
+    public void setItemClickListener(OnRecycleItemClickListener itemClickListener) {
+        this.mItemClickListener = itemClickListener;
 
     }
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public void setItemLongClickListener(OnRecycleItemLongClickListener itemLongClickListener) {
+        this.mItemLongClickListener = itemLongClickListener;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener , View.OnLongClickListener{
         ImageView fileIconView;
         TextView fileNameView;
         public ViewHolder(View view) {
@@ -36,15 +44,25 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
            fileIconView = (ImageView) view.findViewById(R.id.file_icon_item);
            fileNameView = (TextView) view.findViewById(R.id.file_name_item);
             view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
         //    Log.d("------Adapter-------", ": " + getLocation() + getAdapterPosition() + getLayoutPosition());
-            if (recycleItemClickListener != null) {
+            if (mItemClickListener != null) {
                 int pos = getLayoutPosition();
-                recycleItemClickListener.onItemClick(v, getLayoutPosition());
+                mItemClickListener.onItemClick(v, getLayoutPosition());
             }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (mItemLongClickListener != null) {
+                mItemLongClickListener.onItemLongClick(v, getLayoutPosition());
+                return true;
+            }
+            return false;
         }
     }
 

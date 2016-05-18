@@ -57,8 +57,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         if (mPreferences.getBoolean("isLogin", false)) {
             String username = mPreferences.getString("username", "");
             String password = mPreferences.getString("password", "");
+            int id = mPreferences.getInt("id", -1);
             HttpUtil.configAuthRequestBuilder(new Request.Builder(), username, password);
             User.setInstance(username, password, true);
+            User.getInstance().setId(id);
+
+        } else {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
         }
         Log.d("MainActivity", "onCreate()");
     }
@@ -68,6 +74,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     protected void onStart() {
         super.onStart();
         Log.d("MainActivity", "onStart()");
+        if (!User.getInstance().isLogin()) {
+
+        }
     }
 
 
@@ -175,9 +184,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         boolean isLogin = user.isLogin();
         String username = user.getUsername();
         String password = user.getPassword();
+        int id = user.getId();
         mEditor.putBoolean("isLogin", isLogin);
         mEditor.putString("username", username);
         mEditor.putString("password", password);
+        mEditor.putInt("id", id);
         Log.d("MainActivity", "onDestroy()");
         super.onDestroy();
     }

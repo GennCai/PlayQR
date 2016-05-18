@@ -1,3 +1,4 @@
+#coding:utf-8
 from flask import make_response, jsonify, request, render_template
 from flask.ext.restful import Resource, reqparse, fields, marshal
 from flask.ext.httpauth import HTTPBasicAuth
@@ -41,7 +42,7 @@ parse.add_argument('id', type=int, location=['form', 'json'])
 parse.add_argument('image_name', type=file, location=['form', 'json'])
 parse.add_argument('decode_data', type=str, location=['form', 'json'])
 parse.add_argument('time', type=str,  location=['form', 'json'])
-parse.add_argument('location', type=str, location=['form', 'json'])
+#parse.add_argument('location', type=str, location=['form', 'json'])
 
 
 class TasksAPI(Resource):
@@ -81,19 +82,20 @@ class TasksAPI(Resource):
         user = get_user(username)
         if user is not None and image_data:
             filename = image_data.filename
+            if Image.query.filter_by(image_name=filename).first() is not None:
+                return {'error': 'the summit image name have exist'}, 407
             image_data.save(os.path.join(user.upload_folder, filename))
-
             args = parse.parse_args()
             decode_data = args.get('decode_data')
-            time = args.get('time') # 2016-05-12 10:19:19
+            time = args.get('time') #时间格式 2016-05-12 10:19:19
             if time is None:
                 time = datetime.now()
             else:
                 time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
-            position = args.get('location')
+            location = request.form['location']
 
             new_image = Image(image_name=filename, decode_data=decode_data,
-                              time=time, location=position, user=user)
+                              time=time, location=location, user=user)
             db.session.add(new_image)
             db.session.commit()
             return {'success': 'you have uploaded your data'}, 201

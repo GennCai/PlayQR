@@ -11,12 +11,16 @@ public class User {
     private String username;
     private String password;
     private boolean isLogin;
+    private int id;
 
     private User() {}
-    public static User getInstance(){
-      return sUser == null ? new User() : sUser;
-    }
 
+    public static User getInstance(){
+        if (sUser == null) {
+            sUser = new User();
+        }
+        return sUser;
+    }
     public static User setInstance(String username, String password, boolean isLogin) {
         sUser = getInstance();
         sUser.setUsername(username);
@@ -27,6 +31,14 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getPassword() {

@@ -11,19 +11,19 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 
 public class BDLocationManager {
-    public static final int HANDLER_WHAT = 0x004;
+    public static final int HANDLER_WHAT = 0x006;
 
     private LocationClient mLocationClient;
     private LocationClientOption mOption;
     private Handler mHandler;
+    private Context mContext;
 
-    public BDLocationManager(Handler sendLocationHandler) {
-        mHandler = sendLocationHandler;
-
+    public BDLocationManager(Context context, Handler handler) {
+        mContext = context;
+        mHandler = handler;
     }
-
-    public void getLocation(Context context) {
-        mLocationClient = new LocationClient(context);
+    public void getLocation() {
+        mLocationClient = new LocationClient(mContext);
         mOption = new LocationClientOption();
         initOption(mOption);
         mLocationClient.setLocOption(mOption);

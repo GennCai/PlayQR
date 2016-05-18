@@ -69,6 +69,8 @@
         //key:开发者申请的key
         <activity android:name=".activity.NetImgActivity">
         </activity>
+        <activity android:name=".activity.EditImgActivity">
+        </activity>
     </application>
 
 </manifest>

@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -34,7 +35,9 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.Vector;
 
+import genn.playqt.database.BDLocationManager;
 import genn.playqt.database.DatabaseHelper;
+import genn.playqt.database.Image;
 import genn.playqt.database.User;
 import genn.playqt.utils.FileUtils;
 
@@ -213,23 +216,34 @@ public class MyCaptureActivity extends CaptureActivity implements Callback
 					String thumbDirectoryPath = appDirectoryPath + "/thumbnail";
 					FileUtils.initAppDir(appDirectoryPath, thumbDirectoryPath);
 
-					String fileTime = FileUtils.formatter.format(new Date(System.currentTimeMillis()));
-					String filePath = appDirectoryPath + "/" + fileTime + ".jpg";
+                    Date date = new Date(System.currentTimeMillis());
+					String fileName = FileUtils.formatter.format(date);
+					String filePath = appDirectoryPath + "/" + fileName + ".jpg";
 					FileUtils.saveBitmapToFile(barcode, filePath, 100);
 					Bitmap thumbnail = ThumbnailUtils.extractThumbnail(barcode,
 							TakePhotoActivity.THUMBNAIL_WIDTH, TakePhotoActivity.THUMBNAIL_HEIGHT);
-					String thumbnailPath = thumbDirectoryPath + "/" + fileTime + ".jpg";
+					String thumbnailPath = thumbDirectoryPath + "/" + fileName + ".jpg";
 					FileUtils.saveBitmapToFile(thumbnail, thumbnailPath, 30);
 
                     if (User.getInstance().isLogin()) {
-
+                        final Image image = new Image();
+                        image.setName(fileName + ".jpg");
+                        image.setDecodeData(obj.getText());
+                        image.setTakeTime(Image.sSimpleDateFormat.format(date));
+                        BDLocationManager manager = new BDLocationManager(MyCaptureActivity.this, new Handler(){
+                            @Override
+                            public void handleMessage(Message msg) {
+                                if (msg.what == BDLocationManager.HANDLER_WHAT) {
+                                    image.setLocation((String)msg.obj);
+                                    DatabaseHelper.getInstance(MyCaptureActivity.this).insertImage(image);
+                                }
+                            }
+                        });
+                        manager.getLocation();
                     }
                 } else {
 					Toast.makeText(MyCaptureActivity.this, "请插入存储卡", Toast.LENGTH_LONG).show();
 				}
-
-
-				Toast.makeText(MyCaptureActivity.this, "保存图片中...", Toast.LENGTH_LONG).show();
 				finish();
 			}
 		});

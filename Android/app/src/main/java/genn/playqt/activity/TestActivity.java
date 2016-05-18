@@ -74,7 +74,8 @@ public class TestActivity extends BaseActivity {
     }
     @OnClick(R.id.test_button)
     public void BtnTest(View view) {
-
+        List<Image> images = DatabaseHelper.getInstance(this).queryImages();
+        mEditText.setText(images.get(0).getLocation());
     }
     @Override
     protected void onStart() {

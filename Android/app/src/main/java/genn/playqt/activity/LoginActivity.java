@@ -376,6 +376,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private void succeedExecute() {
             User.setInstance(mUsername, mPassword, true);
+            DatabaseHelper databaseHelper = DatabaseHelper.getInstance(LoginActivity.this);
+            SQLiteDatabase db = databaseHelper.getReadableDatabase();
+            User.getInstance().setId(databaseHelper.getUserId(db, mUsername));
             /*Intent intent = new Intent();
             intent.putExtra("username", mUsername);
             setResult(RESULT_OK, intent);*/
