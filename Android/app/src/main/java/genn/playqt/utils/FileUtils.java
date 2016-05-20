@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
 import genn.playqt.database.User;
@@ -53,12 +54,17 @@ public class FileUtils {
         return flag;
     }
 
-    public static Bitmap readFileToBitmap(File imageFile, int size) {
+    public static boolean saveBitmapToFile(Bitmap bitmap, File targetFile, int quality) {
+        String targetFileName = targetFile.getAbsolutePath();
+        return saveBitmapToFile(bitmap, targetFileName, quality);
+    }
+
+    public static Bitmap readFileToBitmap(File imageFile, int size, int rotate) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = size;
         Bitmap bitmap = null;
         try {
-            bitmap = rotateBitmap(BitmapFactory.decodeStream(new FileInputStream(imageFile), null, options), 90);
+            bitmap = rotateBitmap(BitmapFactory.decodeStream(new FileInputStream(imageFile), null, options), rotate);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -109,4 +115,36 @@ public class FileUtils {
         return directory;
 
     }
+
+    public static boolean copyFile(File oldFile, File targetFile){
+        try {
+            if (oldFile.exists() && targetFile.createNewFile()) {
+                FileInputStream inputStream = new FileInputStream(oldFile);
+                FileOutputStream outputStream = new FileOutputStream(targetFile);
+                byte[] buffer = new byte[1024];
+                int hasRead;
+                while ((hasRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, hasRead);
+                }
+                outputStream.flush();
+                outputStream.close();
+                inputStream.close();
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
+    }
+
+    public static boolean renameFile(String directory, String oldName, String newName) {
+        File oldFile = new File(directory, oldName);
+        File newFile = new File(directory, newName);
+        if (oldFile.exists()) {
+            return oldFile.renameTo(newFile);
+        }
+        return false;
+    }
+
 }

@@ -2,8 +2,10 @@ package genn.playqt.database;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -12,9 +14,10 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper dbHelper;
+    public static final String TAG = "ConstraintException";
     public static DatabaseHelper getInstance(Context context) {
         if (dbHelper == null) {
-            dbHelper = new DatabaseHelper(context, "PlayQR", null, 2);
+            dbHelper = new DatabaseHelper(context, "PlayQR", null, 3);
         }
         return dbHelper;
     }
@@ -50,6 +53,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             case 1:
                 db.execSQL("alter table images add column is_uploaded boolean");
             case 2:
+                db.execSQL("drop table if exists users");
+                db.execSQL("drop table if exists images");
+                onCreate(db);
             case 3:
         }
     }
@@ -69,15 +75,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         , image.getLocation(), false, User.getInstance().getId()});
     }
 
-    public void updataImage(Image image) {
+    public void updateImage(Image image, String oldName) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("update images set path=?, data=?, time=?, location=?",
-                new String[]{image.getName(), image.getDecodeData(), image.getTakeTime(), image.getLocation()});
+        try {
+            db.execSQL("update images set path=?, data=?, time=?, location=? where path=?",
+                    new String[]{image.getName(), image.getDecodeData(), image.getTakeTime(), image.getLocation(), oldName});
+        } catch (SQLiteConstraintException e) {
+            Log.e(TAG, "您设置的图片名称已经存在!");
+        }
     }
 
-    public void uploadImage(String imageName) {
+    public void updateImageState(String imageName, int state) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("update images set is_uploaded=1");
+        db.execSQL("update images set is_uploaded=" + state);
     }
     public Image queryImage(String fileName) {
         Image image = null;

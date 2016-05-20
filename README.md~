@@ -10,3 +10,6 @@ Server端使用Python Flask web框架管理数据
 
 2016-05-17 
 实现Android端对Server端数据的在线浏览
+
+2016-05-18
+完成本地图片的编辑删除上传功能

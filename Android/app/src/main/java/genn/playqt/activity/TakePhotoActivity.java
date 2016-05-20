@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.sql.Date;
 
 import genn.playqt.R;
+import genn.playqt.database.Image;
 import genn.playqt.utils.FileUtils;
 
 public class TakePhotoActivity extends BaseActivity {
@@ -74,9 +75,9 @@ public class TakePhotoActivity extends BaseActivity {
                 if (resultCode == RESULT_OK) {
                     try {
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bitmap, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+                        Bitmap thumbnail = ThumbnailUtils.extractThumbnail(bitmap, Image.THUMB_WIDTH, Image.THUMB_HEIGHT);
 
-                        if (!FileUtils.saveBitmapToFile(thumbnail, thumbFilePath, 20)) {
+                        if (!FileUtils.saveBitmapToFile(thumbnail, thumbFilePath, 30)) {
                             Toast.makeText(this, "保存thumbnail失败!", Toast.LENGTH_LONG).show();
                         }
                         //     degree = FileUtils.readPictureDegree(thumbFilePath);

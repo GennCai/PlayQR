@@ -10,9 +10,11 @@ import java.text.SimpleDateFormat;
 
 public class Image implements Serializable{
 
+    public static final int THUMB_WIDTH = 150;
+    public static final int THUMB_HEIGHT = 150;
     public static SimpleDateFormat sSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             //"yyyyMMdd_HHmmss"
-    private Bitmap icon;
+    transient private Bitmap icon;
 
     private File imageFile;
     @SerializedName("image_name")
@@ -23,13 +25,31 @@ public class Image implements Serializable{
     private String takeTime;
     private String location;
 
-    private boolean isUploaded;
+    private int id;
 
+    private boolean isUploaded;
     public Image(){}
 
     public Image(Bitmap thumbBitmap, String imageName) {
         this.name = imageName;
         this.icon = thumbBitmap;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        Image image = (Image) o;
+        if (this.getName().equals(image.getName())) {
+            return true;
+        }
+        return false;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public File getImageFile() {

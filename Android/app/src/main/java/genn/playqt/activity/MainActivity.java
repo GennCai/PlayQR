@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import genn.playqt.R;
+import genn.playqt.database.Image;
 import genn.playqt.database.User;
 import genn.playqt.utils.FileUtils;
 import genn.playqt.utils.HttpUtil;
@@ -53,7 +54,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         detectQR.setOnClickListener(this);
         testPage.setOnClickListener(this);
 
-        mPreferences = getPreferences(MODE_PRIVATE);
+        mPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
+    //    boolean isLogin = mPreferences.getBoolean("isLogin", false);
         if (mPreferences.getBoolean("isLogin", false)) {
             String username = mPreferences.getString("username", "");
             String password = mPreferences.getString("password", "");
@@ -75,7 +77,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         super.onStart();
         Log.d("MainActivity", "onStart()");
         if (!User.getInstance().isLogin()) {
-
+            Log.d("MainActivity", "onStart()");
         }
     }
 
@@ -168,6 +170,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onPause() {
         super.onPause();
+        mEditor = mPreferences.edit();
+        User user = User.getInstance();
+        boolean isLogin = user.isLogin();
+        String username = user.getUsername();
+        String password = user.getPassword();
+        int id = user.getId();
+        mEditor.putBoolean("isLogin", isLogin);
+        mEditor.putString("username", username);
+        mEditor.putString("password", password);
+        mEditor.putInt("id", id);
+        mEditor.commit();
         Log.d("MainActivity", "onPause()");
     }
 
@@ -179,16 +192,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     @Override
     protected void onDestroy() {
-        mEditor = mPreferences.edit();
-        User user = User.getInstance();
-        boolean isLogin = user.isLogin();
-        String username = user.getUsername();
-        String password = user.getPassword();
-        int id = user.getId();
-        mEditor.putBoolean("isLogin", isLogin);
-        mEditor.putString("username", username);
-        mEditor.putString("password", password);
-        mEditor.putInt("id", id);
+        if (NetImgActivity.netImages != null) {
+            for (Image image : NetImgActivity.netImages) {
+                if (image.getImageFile() != null) {
+                    image.getImageFile().delete();
+                }
+            }
+        }
         Log.d("MainActivity", "onDestroy()");
         super.onDestroy();
     }

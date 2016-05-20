@@ -221,7 +221,7 @@ public class MyCaptureActivity extends CaptureActivity implements Callback
 					String filePath = appDirectoryPath + "/" + fileName + ".jpg";
 					FileUtils.saveBitmapToFile(barcode, filePath, 100);
 					Bitmap thumbnail = ThumbnailUtils.extractThumbnail(barcode,
-							TakePhotoActivity.THUMBNAIL_WIDTH, TakePhotoActivity.THUMBNAIL_HEIGHT);
+							Image.THUMB_WIDTH, Image.THUMB_HEIGHT);
 					String thumbnailPath = thumbDirectoryPath + "/" + fileName + ".jpg";
 					FileUtils.saveBitmapToFile(thumbnail, thumbnailPath, 30);
 

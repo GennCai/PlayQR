@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 @auth.get_password
 def get_password(username):
-    from app import User
+    from app import User, db
     user = User.query.filter_by(username=username).first()
     if user is not None:
         return user.password
@@ -39,7 +39,7 @@ def allowed_file(filename):
 
 parse = reqparse.RequestParser()
 parse.add_argument('id', type=int, location=['form', 'json'])
-parse.add_argument('image_name', type=file, location=['form', 'json'])
+parse.add_argument('image_name', type=str, location=['form', 'json'])
 parse.add_argument('decode_data', type=str, location=['form', 'json'])
 parse.add_argument('time', type=str,  location=['form', 'json'])
 #parse.add_argument('location', type=str, location=['form', 'json'])
@@ -47,7 +47,6 @@ parse.add_argument('time', type=str,  location=['form', 'json'])
 
 class TasksAPI(Resource):
     decorators = [auth.login_required]
-  #  form = TakesPostForm()
 
     def __init__(self):
         self.form = TakesPostForm()
@@ -60,6 +59,8 @@ class TasksAPI(Resource):
         if user is not None:
             images_db = []
             images = Image.query.filter_by(user_id=user.id).all()
+            if len(images) == 0:
+                return {'message': 'you have not upload image'}, 205
             for image in images:
                 image_db = {
                     'id': image.id,
@@ -88,7 +89,7 @@ class TasksAPI(Resource):
             args = parse.parse_args()
             decode_data = args.get('decode_data')
             time = args.get('time') #时间格式 2016-05-12 10:19:19
-            if time is None:
+            if time is None or len(time) != 17:
                 time = datetime.now()
             else:
                 time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
@@ -109,18 +110,56 @@ class TaskAPI(Resource):
         super(TaskAPI, self).__init__()
 
     def get(self, id):
-        from app import db, User, Image
-        args = parse.parse_args()
-        image_db = {}
-        image = Image.query.filter_by(id=id).first()
-
-        return {'message': 'TakeAPI GET'}
+        from app import Image, User
+        user = get_user(request.authorization.username)
+        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if image is None:
+            return {'error': 'can not find request source'}, 408
+        image_db = {
+            'id': image.id,
+            'image_name': image.image_name,
+            'decode_data': image.decode_data,
+            'time': image.time.strftime('%Y-%m-%d %H:%M:%S'),
+            'location': image.location
+        }
+        return image_db
 
     def put(self, id):
+        from app import db, Image, User
+        args = parse.parse_args()
+        user = get_user(request.authorization.username)
+        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if image is None:
+            return {'error': 'the update resource is not exist'}, 409
+        if image.image_name != args.get('image_name'):
+            image.image_name = args.get('image_name')
+            old_file = os.path.join(user.upload_folder, image.image_name)
+            if os.path.exists(old_file):
+                new_file = os.path.join(user.upload_folder, args.get('image_name'))
+                os.rename(old_file, new_file)
 
+        image.decode_data = args.get('decode_data')
+        time = args.get('time')
+        if time is None or len(time) != 17:
+            time = datetime.now()
+        else:
+            time = datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+        image.time = time
+        image.location = request.form['location']
+        db.session.commit()
         return {'message': 'TakeAPI PUT'}
 
     def delete(self, id):
+        from app import db, Image, User
+        user = get_user(request.authorization.username)
+        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if image is None:
+            return {'error': 'the delete resource is not exist'}, 209
+        db.session.delete(image)
+        db.session.commit()
+        image_path = os.path.join(user.upload_folder, image.image_name)
+        if os.path.exists(image_path):
+            os.remove(image_path)
         return {'message': 'TakeAPI DELETE'}
 
 

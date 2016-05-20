@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,7 +43,7 @@ public class LocImgActivity extends BaseActivity {
     private RecyclerAdapter recyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private List<Image> mData = new ArrayList<>();
+    public List<Image> mData = new ArrayList<>();
 
     private String[] neededPermissions;
     private int permissionCode = 3;
@@ -59,6 +61,7 @@ public class LocImgActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         // supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_loc_img);
+
         recycleTitle = (TextView) findViewById(R.id.recycle_title_view);
         container = (LinearLayout) findViewById(R.id.show_recycle_container);
 
@@ -67,15 +70,18 @@ public class LocImgActivity extends BaseActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        showPhotoView = LayoutInflater.from(LocImgActivity.this).inflate(R.layout.activity_show_photo, null);
-        showPhoto = (ImageView)showPhotoView.findViewById(R.id.show_photo_image);
         neededPermissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
         requestPermission(this,neededPermissions, permissionCode );
+
     }
     @Override
     protected void onStart() {
         super.onStart();
-
+        if (!User.getInstance().isLogin()) {
+            Intent intent = new Intent(LocImgActivity.this, LoginActivity.class);
+            startActivity(intent);
+            Toast.makeText(LocImgActivity.this, "登陆后才能查看照片", Toast.LENGTH_LONG).show();
+        }
     }
 
     Pattern pattern = Pattern.compile("\\w+\\\\.(jpg|gif|bmp|png)");
@@ -98,10 +104,10 @@ public class LocImgActivity extends BaseActivity {
                     File tmpFile = new File(User.getThumbDirectoryPath() + "/" + tmpFileName);
                     Bitmap bitmap;
                     if (tmpFile.exists()) {
-                        bitmap =  FileUtils.readFileToBitmap(tmpFile, 1);
+                        bitmap =  FileUtils.readFileToBitmap(tmpFile, 1, 90);
                     } else {
                         tmpFile = new File(User.getAppDirectoryPath() + "/", tmpFileName);
-                        bitmap = FileUtils.readFileToBitmap(tmpFile, 50);
+                        bitmap = FileUtils.readFileToBitmap(tmpFile, 50, 90);
                     }
                     newImage.setIcon(bitmap);
                     newImage.setName(tmpFileName);
@@ -133,8 +139,11 @@ public class LocImgActivity extends BaseActivity {
                     TextView fileNameText = (TextView) view.findViewById(R.id.file_name_item);
                     String fileName = fileNameText.getText().toString();
 
+                    showPhotoView = LayoutInflater.from(LocImgActivity.this).inflate(R.layout.activity_show_photo, null);
+                    showPhoto = (ImageView)showPhotoView.findViewById(R.id.show_photo_image);
+
                     File showImageFile = new File(User.getAppDirectoryPath() + "/" + fileName);
-                    showBitmap = FileUtils.readFileToBitmap(showImageFile, 1);
+                    showBitmap = FileUtils.readFileToBitmap(showImageFile, 1, 90);
                     showPhoto.setImageBitmap(showBitmap);
 
                     clickDialogBuilder.setTitle(fileName);
@@ -163,31 +172,40 @@ public class LocImgActivity extends BaseActivity {
                         String[] items = new String[]{image.getDecodeData(), image.getTakeTime(), image.getLocation()};
                         longClickBuilder.setItems(items, null);
 
-                        longClickBuilder.setNeutralButton("上传", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                File imageFile = new File(User.getAppDirectoryPath(), fileName);
-                                if (imageFile.exists()) {
-                                    image.setImageFile(imageFile);
-                                    HttpUtil.getInstance().uploadImage(HttpUtil.URL_TASKS, image, new Callback() {
-                                        @Override
-                                        public void onFailure(Call call, IOException e) {
-                                            Toast.makeText(LocImgActivity.this, "图片上传失败", Toast.LENGTH_LONG).show();
-                                        }
-
-                                        @Override
-                                        public void onResponse(Call call, Response response) throws IOException {
-                                            if (response.isSuccessful()) {
-                                                DatabaseHelper.getInstance(LocImgActivity.this).uploadImage(image.getName());
+                        if (!image.isUploaded()) {
+                            longClickBuilder.setNeutralButton("上传", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    File imageFile = new File(User.getAppDirectoryPath(), fileName);
+                                    if (imageFile.exists()) {
+                                        image.setImageFile(imageFile);
+                                        HttpUtil.getInstance().uploadImage(HttpUtil.URL_TASKS, image, new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
                                                 Looper.prepare();
-                                                Toast.makeText(LocImgActivity.this, "图片上传成功", Toast.LENGTH_LONG).show();
+                                                Toast.makeText(LocImgActivity.this, "图片上传失败", Toast.LENGTH_LONG).show();
                                                 Looper.loop();
                                             }
-                                        }
-                                    });
+
+                                            @Override
+                                            public void onResponse(Call call, Response response) throws IOException {
+                                                if (response.isSuccessful()) {
+                                                    DatabaseHelper.getInstance(LocImgActivity.this).updateImageState(image.getName(), 1);
+                                                    Looper.prepare();
+                                                    Toast.makeText(LocImgActivity.this, "图片上传成功", Toast.LENGTH_LONG).show();
+                                                    File thumbFile = new File(User.getThumbDirectoryPath(), image.getName());
+                                                    if (thumbFile.exists()) {
+                                                        image.setIcon(FileUtils.readFileToBitmap(thumbFile, 1, 90));
+                                                    }
+                                                    NetImgActivity.isNetUpdate = false;
+                                                    Looper.loop();
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     } else longClickBuilder.setMessage("这张图片暂时没有信息");
 
                     longClickBuilder.setNegativeButton("删除", new DialogInterface.OnClickListener() {
@@ -199,7 +217,10 @@ public class LocImgActivity extends BaseActivity {
                             if (thumbFile.exists()) thumbFile.delete();
                             if (image != null)
                                 DatabaseHelper.getInstance(LocImgActivity.this).deleteImage(image.getName());
-                            recyclerAdapter.notifyItemRemoved(position);
+                            Message message = new Message();
+                            message.what = 0x001;
+                            message.obj = position;
+                            mHandler.sendMessage(message);
                         }
                     });
                     longClickBuilder.setPositiveButton("编辑", new DialogInterface.OnClickListener() {
@@ -209,8 +230,9 @@ public class LocImgActivity extends BaseActivity {
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("image", image);
                             bundle.putString("imageName", fileName);
+                            bundle.putBoolean("isFromLoc", true);
                             intent.putExtras(bundle);
-                            startActivityForResult(intent, 0);
+                            startActivityForResult(intent, position);
                         }
                     });
                     longClickBuilder.create();
@@ -221,14 +243,28 @@ public class LocImgActivity extends BaseActivity {
         }
     }
 
+    Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0x001:
+                    int position = (int) msg.obj;
+                    mData.remove(position);
+                    recyclerAdapter.notifyItemRemoved(position);
+                    break;
+            }
+        }
+    };
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK) {
-                    Toast.makeText(this, "数据提交成功", Toast.LENGTH_SHORT).show();
-                    recyclerAdapter.notifyDataSetChanged();
-                }
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "数据提交成功", Toast.LENGTH_SHORT).show();
+                Image image = (Image) data.getSerializableExtra("image");
+                mData.get(requestCode).setName(image.getName());
+                mData.get(requestCode).setDecodeData(image.getDecodeData());
+                mData.get(requestCode).setTakeTime(image.getTakeTime());
+                mData.get(requestCode).setLocation(image.getLocation());
+                recyclerAdapter.notifyItemChanged(requestCode);
         }
     }
 

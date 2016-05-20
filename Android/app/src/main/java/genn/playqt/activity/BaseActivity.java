@@ -10,7 +10,7 @@ import android.os.Bundle;
 
 import genn.playqt.utils.RequestPermissionCallBack;
 
-public abstract class BaseActivity extends AppCompatActivity implements RequestPermissionCallBack {
+public abstract class BaseActivity extends Activity implements RequestPermissionCallBack {
     private int requestCode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

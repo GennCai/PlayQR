@@ -3,6 +3,7 @@ package genn.playqt.utils;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +31,7 @@ public  class HttpUtil {
     public static final String URL_TASKS = "http://192.168.1.110:5000/playqr/api/v1.0/tasks";
     public static final String URL_TASK = "http://192.168.1.110:5000/playqr/api/v1.0/task/";
     public static final String TAG = "Auth Message";
+    public static final String TAG_NET = "Net Error";
     public static final MediaType MEDIA_TYPE = MediaType.parse("application/octet-stream");
 
     private static Request.Builder authRequestBuilder;
@@ -83,6 +85,7 @@ public  class HttpUtil {
 
         Response response = okHttpClient.newCall(request).execute();
         authRequestBuilder = configAuthRequestBuilder(new Request.Builder(), username, password);
+        Log.d(TAG_NET, "login auth: " + authRequestBuilder.toString());
         return response.code();
     }
 
@@ -96,6 +99,7 @@ public  class HttpUtil {
 
         Response response = okHttpClient.newCall(request).execute();
         authRequestBuilder = configAuthRequestBuilder(new Request.Builder(), username, password);
+        Log.d(TAG_NET, "register auth: " + authRequestBuilder.toString());
         return response.code();
     }
 
@@ -135,22 +139,36 @@ public  class HttpUtil {
     public int getImages(String url, Callback callback) {
         okHttpClient = getClient();
         if (authRequestBuilder != null) {
-            Request request = authRequestBuilder.url(url).build();
+            Request request = authRequestBuilder.url(url).get().build();
             okHttpClient.newCall(request).enqueue(callback);
             return 1;
         }
         return 0;
     }
 
-    public int getImage(String url, User user) {
-        return 0;
+    public int updateImage(String url, Image image, Callback callback) {
+        okHttpClient = getClient();
+        if (authRequestBuilder != null) {
+            RequestBody formBody = new FormBody.Builder()
+                    .add("image_name", image.getName())
+                    .add("decode_data", image.getDecodeData())
+                    .add("time", image.getTakeTime())
+                    .add("location", image.getLocation())
+                    .build();
+            Request request = authRequestBuilder.url(url + image.getId()).put(formBody).build();
+            okHttpClient.newCall(request).enqueue(callback);
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    public int updataImage(String url, User user, Image image) {
-        return 0;
-    }
-
-    public int deleteImage(String url, User user, Image image) {
-        return 0;
+    public int deleteImage(String url, int id, Callback callback) {
+        okHttpClient = getClient();
+        if (authRequestBuilder != null) {
+            Request request = authRequestBuilder.url(url + id).delete().build();
+            okHttpClient.newCall(request).enqueue(callback);
+            return 1;
+        }else return 0;
     }
 }

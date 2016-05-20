@@ -33,9 +33,9 @@ class Image(db.Model): #定义表images
     __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     image_name = db.Column(db.String(240), index=True)
-    decode_data = db.Column(db.String(240))
-    time = db.Column(db.DateTime)
-    location = db.Column(db.String(240))
+    decode_data = db.Column(db.String(240), default='none')
+    time = db.Column(db.DateTime, default=datetime.now())
+    location = db.Column(db.String(240), default='none')
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship('User', backref=db.backref('images', lazy='dynamic'))

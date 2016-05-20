@@ -3,6 +3,7 @@ package genn.playqt.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
@@ -43,7 +44,7 @@ import genn.playqt.utils.HttpUtil;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -352,8 +353,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     SQLiteDatabase db = DatabaseHelper.getInstance(LoginActivity.this).getWritableDatabase();
                     db.execSQL("insert into users (username) values (?)", new String[]{mUsername});
                     succeedExecute();
-                    Toast.makeText(LoginActivity.this, "欢迎新用户：" + mUsername, Toast.LENGTH_LONG).show();
-                    finish();
+                    Toast.makeText(LoginActivity.this, "欢迎新用户, 请登陆", Toast.LENGTH_LONG).show();
+                    mUsernameView.requestFocus();
                     break;
                 case 401:
                     mUsernameView.setError("请输入用户名和密码");
