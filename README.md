@@ -16,3 +16,6 @@ Server端使用Python Flask web框架管理数据
 
 2016-05-20
 实现Android端对在线信息的编辑删除操作
+
+2016-05-21
+完成简单的admin页面

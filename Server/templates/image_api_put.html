@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}用户信息编辑页面{% endblock %}
+{% block body %}
+<form method="post" action="">
+    <input type="hidden" name="_method" value="put">
+    <input type="hidden" name="edit" value="edit">
+    <input type="hidden" name="id" value={{ image.get('id') }}>
+    <input type="hidden" name="user_id" value={{ image.get('user_id') }}>
+    <table>
+        <caption>编辑图片信息</caption>
+        <tbody>
+            <tr>
+                <th align="right">图片名称:</th><td><input type="text" size="30" name="image_name" value={{ image.get('image_name') }}></td>
+            </tr>
+            <tr>
+                <th align="right">地理位置:</th><td><input type="text" size="30" name="location" value={{ image.get('location')}}></td>
+            </tr>
+            <tr>
+                <th align="right">拍照时间:</th><td><input type="text" size="30" name="time" value={{ image.get('time') }}></td>
+            </tr>
+            <tr>
+                <th align="right">解码信息:</th><td><input type="text" size="30" name="decode_data" value={{ image.get('decode_data') }}></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="submit"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+    <p>
+        <img style="rotation: 90deg" src="http://192.168.1.110:5000/images/{{ image.get('id') }}" width="300" height="200"/>
+    </p>
+{% endblock %}

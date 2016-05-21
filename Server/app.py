@@ -2,10 +2,11 @@
 from flask import Flask, render_template, url_for, request, redirect, jsonify, make_response, send_from_directory
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.restful import Api
-from views.admin import admin
+from views.admin import admin, UserAPI, ImageAPI
 from views.wtf import RegisterForm, LoginForm, TakesPostForm
 from views.restful import TasksAPI, TaskAPI, auth
 from datetime import datetime
+from flask.ext.bootstrap import Bootstrap
 import os
 
 app = Flask(__name__)
@@ -16,10 +17,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:788563@localhost/play_qr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['UPLOAD_FOLDER'] = '/home/genn/Public/'
 db = SQLAlchemy(app)
+bootstrap = Bootstrap(app)
 
 api = Api(app)
 api.add_resource(TasksAPI, '/playqr/api/v1.0/tasks', endpoint='tasks')
 api.add_resource(TaskAPI, '/playqr/api/v1.0/task/<int:id>', endpoint='task')
+api.add_resource(UserAPI, '/playqr/api/v1.0/user/<int:id>', endpoint='user_api')
+api.add_resource(ImageAPI, '/playqr/api/v1.0/image/<int:id>', endpoint='image_api')
 
 
 @app.route('/test')
@@ -119,6 +123,13 @@ def download(filename):
     directory = user.upload_folder
     return send_from_directory(directory=directory, filename=filename)
 
+
+@app.route('/images/<int:id>')
+def show_image(id):
+    image = Image.query.filter_by(id=id).first()
+    user = User.query.filter_by(id=image.user_id).first()
+    directory = user.upload_folder
+    return send_from_directory(directory=directory, filename=image.image_name)
 
 if __name__ == '__main__':
     app.run(host='192.168.1.110')

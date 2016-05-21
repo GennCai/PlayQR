@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}用户信息编辑页面{% endblock %}
+{% block body %}
+<form method="post" action="">
+    <input type="hidden" name="_method" value="put">
+    <input type="hidden" name="edit" value="edit">
+    <input type="hidden" name="id" value={{ user.get('id') }}>
+    <table>
+        <caption>编辑用户信息</caption>
+        <tbody>
+            <tr>
+                <th align="right">用户名:</th><td><input type="text" name="username" value={{ user.get('username') }}></td>
+            </tr>
+            <tr>
+                <th align="right">密  码:</th><td><input type="text" name="password" value={{ user.get('password')}}></td>
+            </tr>
+            <tr>
+                <th align="right">文件路径:</th><td><input type="text" name="upload_folder" value={{ user.get('upload_folder') }}></td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><input type="submit"></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+{% endblock %}

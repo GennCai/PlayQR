@@ -23,3 +23,11 @@ class TakesPostForm(Form):
     time = StringField()
     location = StringField()
 
+
+class UserEditForm(Form):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired(), Length(6)])
+    upload_folder = StringField('Upload_folder')
+    submit = SubmitField()
+
+

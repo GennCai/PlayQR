@@ -58,7 +58,10 @@ class TasksAPI(Resource):
         user = get_user(username)
         if user is not None:
             images_db = []
-            images = Image.query.filter_by(user_id=user.id).all()
+            if user.username == 'admin':
+                images = Image.query.all()
+            else:
+                images = Image.query.filter_by(user_id=user.id).all()
             if len(images) == 0:
                 return {'message': 'you have not upload image'}, 205
             for image in images:
@@ -112,7 +115,10 @@ class TaskAPI(Resource):
     def get(self, id):
         from app import Image, User
         user = get_user(request.authorization.username)
-        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if user.username == 'admin':
+            image = Image.query.filter_by(id=id).first()
+        else:
+            image = Image.query.filter_by(id=id, user_id=user.id).first()
         if image is None:
             return {'error': 'can not find request source'}, 408
         image_db = {
@@ -128,7 +134,10 @@ class TaskAPI(Resource):
         from app import db, Image, User
         args = parse.parse_args()
         user = get_user(request.authorization.username)
-        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if user.username == 'admin':
+            image = Image.query.filter_by(id=id).first()
+        else:
+            image = Image.query.filter_by(id=id, user_id=user.id).first()
         if image is None:
             return {'error': 'the update resource is not exist'}, 409
         if image.image_name != args.get('image_name'):
@@ -152,7 +161,10 @@ class TaskAPI(Resource):
     def delete(self, id):
         from app import db, Image, User
         user = get_user(request.authorization.username)
-        image = Image.query.filter_by(id=id, user_id=user.id).first()
+        if user.username == 'admin':
+            image = Image.query.filter_by(id=id).first()
+        else:
+            image = Image.query.filter_by(id=id, user_id=user.id).first()
         if image is None:
             return {'error': 'the delete resource is not exist'}, 209
         db.session.delete(image)

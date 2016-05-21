@@ -20,7 +20,7 @@ import okhttp3.Request;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener{
 
-    private Button takePhoto, chooseLocImg,chooseNetImg, detectQR, testPage;
+    private Button takePhoto, chooseLocImg,chooseNetImg, detectQR;
     private TextView loginText, usernameText;
 
     private static final int REQUEST_LOGIN_CODE = 0;
@@ -39,7 +39,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         chooseLocImg = (Button) findViewById(R.id.choose_loc_img_btn);
         chooseNetImg = (Button) findViewById(R.id.choose_net_img_btn);
         detectQR = (Button) findViewById(R.id.detect_qr_btn);
-        testPage = (Button) findViewById(R.id.test_btn);
 
         loginText = (TextView) findViewById(R.id.login_text);
         usernameText = (TextView) findViewById(R.id.username_text);
@@ -52,7 +51,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         chooseLocImg.setOnClickListener(this);
         chooseNetImg.setOnClickListener(this);
         detectQR.setOnClickListener(this);
-        testPage.setOnClickListener(this);
 
         mPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
     //    boolean isLogin = mPreferences.getBoolean("isLogin", false);
@@ -112,10 +110,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 break;
             case R.id.choose_net_img_btn:
                 intent = new Intent(MainActivity.this, NetImgActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.test_btn:
-                intent = new Intent(MainActivity.this, TestActivity.class);
                 startActivity(intent);
                 break;
         }

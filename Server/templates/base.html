@@ -2,24 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{% block title %}{% endblock %}</title>
+    <script type="text/javascript" src="data_manage.js">
+    </script>
+    <link rel=stylesheet type=text/css href="http://192.168.1.110:5000/static/style.css">
 </head>
 <body>
-<form>
-    <table>
-        <caption >注册账号</caption>
-        <tbody>
-            <tr>
-                <th align="right">用户名:</th><td><input name='Username' type="text" size="20"></td>
-            </tr>
-            <tr>
-                <th align="right">密  码:</th><td><input name="Password" type="password", size="20"></td>
-            </tr>
-            <tr>
-                <td colspan="2" align="center"><input name="submit" type="submit" value="完成注册"></td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+    {% block body %}
+    {% endblock %}
 </body>
 </html>
